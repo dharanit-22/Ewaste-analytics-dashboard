@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Waste Analytics - Bengaluru Recycler Gap Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-recycle text-gradient"></i>
+                </div>
+                <div class="brand-name">
+                    <h3>E-Waste</h3>
+                    <span>Analytics System</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <ul>
+                    <li class="menu-item active" data-view="dashboard">
+                        <a href="#"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="menu-item" data-view="recycler-locator">
+                        <a href="#"><i class="fa-solid fa-location-dot"></i> <span>Recycler Locator</span></a>
+                    </li>
+                    <li class="menu-item" data-view="action-plan">
+                        <a href="#"><i class="fa-solid fa-triangle-exclamation"></i> <span>Action Plan</span></a>
+                    </li>
+                    <li class="menu-item" data-view="ward-analysis">
+                        <a href="#"><i class="fa-solid fa-map-location-dot"></i> <span>Ward Analysis</span></a>
+                    </li>
+                    <li class="menu-item" data-view="forecast-simulator">
+                        <a href="#"><i class="fa-solid fa-sliders"></i> <span>Forecast Simulator</span></a>
+                    </li>
+                    <li class="menu-item" data-view="strategic-intel">
+                        <a href="#"><i class="fa-solid fa-brain"></i> <span>Strategic Intel</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="live-feed-card">
+                    <div class="feed-header">
+                        <span class="pulse-indicator" id="feed-status-dot"></span>
+                        <span class="feed-label">Live Data Feed</span>
+                        <label class="switch">
+                            <input type="checkbox" id="live-feed-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="feed-details">
+                        <small>Bengaluru City Model</small>
+                        <small id="feed-update-time">Active Ward: 12</small>
+                    </div>
+                </div>
+                <div class="author-credits">
+                    <p>Bengaluru E-Waste Analytics Hub</p>
+                    <p>© 2026 Municipal Corporation</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-title">
+                    <h1 id="view-title">Dashboard</h1>
+                    <p id="view-subtitle">Real-Time E-Waste Recycling Efficiency & Infrastructure Gap Score</p>
+                </div>
+                <div class="header-actions">
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-sun icon-sun"></i>
+                        <i class="fa-solid fa-moon icon-moon"></i>
+                    </button>
+                    <div class="year-selector-pill">
+                        <span class="pill-label">Model Year:</span>
+                        <span class="pill-value text-gradient" id="global-year-badge">2026</span>
+                    </div>
+                    <div class="refresh-btn" id="manual-refresh" title="Reset/Re-seed data">
+                        <i class="fa-solid fa-rotate"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Screen 1: Dashboard View -->
+            <section id="view-dashboard" class="dashboard-view active-view">
+                <!-- Metrics Quick Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="card-icon font-green"><i class="fa-solid fa-dumpster"></i></div>
+                        <div class="card-info">
+                            <span class="metric-label">Total E-Waste Generated</span>
+                            <h2 class="metric-value" id="dash-total-gen">62.8 T</h2>
+                            <small class="metric-trend font-green"><i class="fa-solid fa-arrow-up"></i> 8% YoY</small>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-icon font-teal"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="card-info">
+                            <span class="metric-label">Formally Recycled</span>
+                            <h2 class="metric-value" id="dash-total-rec">38.2 T</h2>
+                            <small class="metric-trend font-teal" id="dash-city-rate">Rate: 60.8%</small>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-icon font-gold"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="card-info">
+                            <span class="metric-label">Overloaded Recyclers</span>
+                            <h2 class="metric-value" id="dash-overload-count">11 / 20</h2>
+                            <small class="metric-trend font-gold">Wards at risk</small>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="card-icon font-red"><i class="fa-solid fa-heart-crack"></i></div>
+                        <div class="card-info">
+                            <span class="metric-label">Highest Recycle Gap</span>
+                            <h2 class="metric-value" id="dash-highest-gap-ward">MG Road Area</h2>
+                            <small class="metric-trend font-red" id="dash-highest-gap-score">Score: 88.0</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary Chart Blocks -->
+                <div class="charts-layout">
+                    <!-- Left: Generation Bar -->
+                    <div class="chart-block-large">
+                        <div class="block-header">
+                            <h3>E-waste Collection by Ward (Tons)</h3>
+                            <span class="block-subtitle">Comparison of generated vs. formally recycled e-waste</span>
+                        </div>
+                        <div class="chart-container" style="height: 320px; position: relative;">
+                            <canvas id="barCollectionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Efficiency Ring -->
+                    <div class="chart-block-small">
+                        <div class="block-header">
+                            <h3>Recycling Efficiency (%)</h3>
+                            <span class="block-subtitle">Formal recycling rate per zone</span>
+                        </div>
+                        <div class="chart-container donut-wrap" style="height: 250px; position: relative;">
+                            <canvas id="donutEfficiencyChart"></canvas>
+                            <div class="donut-center-text">
+                                <span class="percent" id="city-avg-rate-donut">58%</span>
+                                <span class="label">City Avg</span>
+                            </div>
+                        </div>
+                        <div class="donut-legend" id="donut-legend-container"></div>
+                    </div>
+                </div>
+
+                <div class="charts-layout second-row">
+                    <!-- Scatter Plot -->
+                    <div class="chart-block-half">
+                        <div class="block-header">
+                            <h3>Density of E-waste vs. Gap Score</h3>
+                            <span class="block-subtitle">Top-right quadrant represents high priority intervention zones</span>
+                        </div>
+                        <div class="chart-container" style="height: 300px; position: relative;">
+                            <canvas id="scatterDensityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Heatmap / Custom Table Grid -->
+                    <div class="chart-block-half">
+                        <div class="block-header">
+                            <h3>Recycle Gap Score by Ward</h3>
+                            <span class="block-subtitle">Wards ranked by Gap Score. Green = stable, Red = critical.</span>
+                        </div>
+                        <div class="heatmap-wrapper">
+                            <div class="heatmap-header-row">
+                                <div class="col-ward">Ward</div>
+                                <div class="col-year">2024</div>
+                                <div class="col-year">2025</div>
+                                <div class="col-year">2026</div>
+                            </div>
+                            <div class="heatmap-body" id="heatmap-grid-body">
+                                <!-- Generated Dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 2: Recycler Locator View -->
+            <section id="view-recycler-locator" class="dashboard-view">
+                <div class="locator-layout">
+                    <div class="control-panel-glass">
+                        <div class="control-header">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <h3>Find Nearest Recycler</h3>
+                        </div>
+                        <p class="control-desc">Search for certified recycler facility in nearby zones and assess their capacity status.</p>
+                        
+                        <div class="form-group">
+                            <label for="locator-ward-select">Select your Ward:</label>
+                            <select id="locator-ward-select" class="custom-select">
+                                <!-- Generated Dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="ward-zone-indicator" id="locator-zone-badge">
+                            <span>Zone:</span>
+                            <strong class="font-teal" id="locator-zone-name">South</strong>
+                        </div>
+                    </div>
+
+                    <div class="results-panel">
+                        <div class="results-header">
+                            <h3>Certified Recyclers for Ward Selection</h3>
+                            <span class="results-count" id="locator-results-count">3 Facilities Found</span>
+                        </div>
+
+                        <div class="recyclers-list" id="recyclers-cards-container">
+                            <!-- Cards will be populated here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 3: Action Plan View -->
+            <section id="view-action-plan" class="dashboard-view">
+                <div class="action-plan-container">
+                    <div class="action-alert-box warning-alert">
+                        <div class="alert-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+                        <div class="alert-content">
+                            <h4>Infrastructure Action Plan</h4>
+                            <p>Important risk indicators showing resources target shortages.</p>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>Infrastructure Action Plan Matrix</h3>
+                            <button class="export-csv-btn" id="action-plan-download-csv">
+                                <i class="fa-solid fa-file-csv"></i> Download Action Plan CSV
+                            </button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="glass-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ward</th>
+                                        <th>Shortage</th>
+                                        <th>Req. Hubs</th>
+                                        <th>Priority</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="action-plan-table-body">
+                                    <!-- Rendered dynamically matching Screenshot 3 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 4: Ward Analysis View -->
+            <section id="view-ward-analysis" class="dashboard-view">
+                <div class="ward-analysis-layout">
+                    <!-- Left: Ward detailed dashboard cards -->
+                    <div class="ward-details-panel">
+                        <div class="detail-main-header">
+                            <div class="title-wrap">
+                                <h2 id="ward-detail-name">Electronics City</h2>
+                                <span class="badge" id="ward-detail-zone">South Zone</span>
+                            </div>
+                            <div class="gap-score-display">
+                                <span class="gap-score-title">Gap Score</span>
+                                <div class="gap-score-bubble" id="ward-detail-gap-bubble">
+                                    <span class="score-num" id="ward-detail-gap-score">48.2</span>
+                                    <small id="ward-detail-gap-status">Medium</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="details-metrics-grid">
+                            <div class="d-metric-card">
+                                <span class="d-label">Area (km²)</span>
+                                <strong class="d-value" id="ward-detail-area">28.5</strong>
+                            </div>
+                            <div class="d-metric-card">
+                                <span class="d-label">Population Index</span>
+                                <strong class="d-value" id="ward-detail-pop">4.5</strong>
+                            </div>
+                            <div class="d-metric-card">
+                                <span class="d-label">Facilities</span>
+                                <strong class="d-value" id="ward-detail-facilities">3</strong>
+                            </div>
+                            <div class="d-metric-card">
+                                <span class="d-label">Total Capacity</span>
+                                <strong class="d-value" id="ward-detail-capacity">450 T</strong>
+                            </div>
+                        </div>
+
+                        <!-- Ward specific comparison charts / visual layout -->
+                        <div class="ward-charts-grid">
+                            <div class="w-chart-card">
+                                <h4>E-Waste Breakdown (Tons)</h4>
+                                <div class="breakdown-bars">
+                                    <div class="breakdown-bar-item">
+                                        <div class="lbl-wrap"><span>Generated</span><strong id="ward-detail-gen">82.4 T</strong></div>
+                                        <div class="bar-outer"><div class="bar-inner bg-gold" id="ward-bar-gen" style="width: 100%"></div></div>
+                                    </div>
+                                    <div class="breakdown-bar-item">
+                                        <div class="lbl-wrap"><span>Recycled</span><strong id="ward-detail-rec">56.4 T</strong></div>
+                                        <div class="bar-outer"><div class="bar-inner bg-teal" id="ward-bar-rec" style="width: 68.4%"></div></div>
+                                    </div>
+                                    <div class="breakdown-bar-item">
+                                        <div class="lbl-wrap"><span>Discarded (Untreated)</span><strong id="ward-detail-disc">26.0 T</strong></div>
+                                        <div class="bar-outer"><div class="bar-inner bg-red" id="ward-bar-disc" style="width: 31.6%"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-chart-card">
+                                <h4>Mobile Device Footprint (2026)</h4>
+                                <div class="phones-footprint">
+                                    <div class="phone-metric-sub">
+                                        <i class="fa-solid fa-mobile-screen font-teal"></i>
+                                        <div class="sub-info">
+                                            <span class="phone-sub-lbl">Phones Sold</span>
+                                            <strong id="ward-detail-phones-sold">8,245</strong>
+                                        </div>
+                                    </div>
+                                    <div class="phone-metric-sub">
+                                        <i class="fa-solid fa-shield-halved font-teal"></i>
+                                        <div class="sub-info">
+                                            <span class="phone-sub-lbl">Phones Recycled</span>
+                                            <strong id="ward-detail-phones-rec">3,450</strong>
+                                        </div>
+                                    </div>
+                                    <div class="phone-metric-sub">
+                                        <i class="fa-solid fa-trash-can font-red"></i>
+                                        <div class="sub-info">
+                                            <span class="phone-sub-lbl">Phones Discarded</span>
+                                            <strong id="ward-detail-phones-disc">4,795</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ward detailed efficiency card -->
+                        <div class="ward-analysis-infocard">
+                            <div class="infocard-header">
+                                <i class="fa-solid fa-circle-info font-teal"></i>
+                                <h4>Infrastructure Status Briefing</h4>
+                            </div>
+                            <p id="ward-detail-briefing">
+                                Electronics City registers low infrastructure gap scores compared to Bengaluru's average due to robust local processing capacity (3 dedicated facilities). However, e-waste densities have risen to 2.89 T/km², calling for increased collections or mobile dropoff hubs by 2026.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right: Searchable ward selection list -->
+                    <div class="wards-list-panel">
+                        <div class="search-box-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="ward-search-input" placeholder="Search ward...">
+                        </div>
+
+                        <div class="ward-items-list" id="ward-analysis-selection-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 5: Forecast Simulator View -->
+            <section id="view-forecast-simulator" class="dashboard-view">
+                <div class="simulator-container">
+                    <div class="simulator-controls-glass">
+                        <div class="slider-row">
+                            <div class="slider-info">
+                                <h3>E-Waste Forecast Simulator</h3>
+                                <p>Timeline projection: warning/caution showing future growth trends.</p>
+                            </div>
+                            <div class="slider-control-box">
+                                <span class="slider-val text-gradient" id="sim-year-label">2031</span>
+                                <input type="range" id="sim-year-slider" min="2026" max="2031" value="2031" step="1" class="modern-slider">
+                                <div class="slider-ticks">
+                                    <span>2026</span>
+                                    <span>2027</span>
+                                    <span>2028</span>
+                                    <span>2029</span>
+                                    <span>2030</span>
+                                    <span>2031</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-card-header">
+                            <h3>Ward-Level Forecast Projections</h3>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="glass-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ward</th>
+                                        <th>Current (2026)</th>
+                                        <th id="sim-table-projected-header">Projected (2031)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="forecast-simulator-table-body">
+                                    <!-- Rendered dynamically matching Screenshot 2 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen 6: Strategic Intel View -->
+            <section id="view-strategic-intel" class="dashboard-view">
+                <!-- Top cards split -->
+                <div class="intel-split-row">
+                    <!-- Left: Resource Recovery Engine -->
+                    <div class="intel-card recovery-card">
+                        <div class="intel-card-header">
+                            <div class="intel-title-icon"><i class="fa-solid fa-coins text-gradient"></i></div>
+                            <div class="intel-title-text">
+                                <h3>Resource Recovery Engine</h3>
+                                <span>Estimated economic value of precious metals and glass from discarded e-waste</span>
+                            </div>
+                        </div>
+                        <div class="value-highlight-box">
+                            <span class="value-subtitle">TOTAL ESTIMATED VALUE</span>
+                            <h1 class="value-amount text-gradient" id="intel-recovery-value">₹ 20.51 Crores</h1>
+                        </div>
+                        <div class="precious-metals-grid">
+                            <div class="metal-pill">
+                                <span class="metal-name">Gold</span>
+                                <strong class="metal-qty" id="intel-gold-qty">24.50 kg</strong>
+                            </div>
+                            <div class="metal-pill">
+                                <span class="metal-name">Silver</span>
+                                <strong class="metal-qty" id="intel-silver-qty">249.27 kg</strong>
+                            </div>
+                            <div class="metal-pill">
+                                <span class="metal-name">Copper</span>
+                                <strong class="metal-qty" id="intel-copper-qty">12,450.3 kg</strong>
+                            </div>
+                            <div class="metal-pill">
+                                <span class="metal-name">Palladium</span>
+                                <strong class="metal-qty" id="intel-palladium-qty">8.65 kg</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: AI Insights & Alerts -->
+                    <div class="intel-card alerts-card">
+                        <div class="intel-card-header">
+                            <div class="intel-title-icon"><i class="fa-solid fa-lightbulb text-gradient"></i></div>
+                            <div class="intel-title-text">
+                                <h3>AI Insights & Alerts</h3>
+                                <span>Click any alert to expand details &amp; take action</span>
+                            </div>
+                        </div>
+                        <div class="alerts-stack" id="intel-alerts-stack">
+                            <!-- Populated dynamically by app.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom: Download Actions Bar -->
+                <div class="intel-downloads-bar no-print">
+                    <div class="downloads-bar-left">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                        <span>Export &amp; Reports</span>
+                    </div>
+                    <div class="downloads-bar-right">
+                        <button class="download-report-btn" id="intel-download-pdf-btn">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Download Weekly Report</span>
+                            <span class="btn-format-tag">PDF</span>
+                        </button>
+                        <button class="export-csv-btn" id="intel-export-csv-btn">
+                            <i class="fa-solid fa-file-csv"></i>
+                            <span>Download Full Dataset</span>
+                            <span class="btn-format-tag">CSV</span>
+                        </button>
+                    </div>
+                </div>
+            
+                <!-- Hidden Weekly Report for Printing (PDF) -->
+                <div class="weekly-report-container-block" id="weekly-report-printable-area">
+                    <div class="report-main-header-green">
+                        <div class="title-left">
+                            <h2>Bengaluru E-Waste Weekly Report</h2>
+                            <span class="report-subtitle-gen" id="intel-report-date">Generated on: --/--/----</span>
+                        </div>
+                    </div>
+
+                    <div class="report-summary-bullets">
+                        <h3>Executive Summary</h3>
+                        <ul>
+                            <li>Total Estimated Weekly E-Waste Collected: <strong id="exec-weekly-collected">130.2 Tons</strong></li>
+                            <li>Highest Collection Ward: <strong id="exec-highest-ward">Whitefield (52 Tons)</strong></li>
+                            <li>Recommended Focus Area: <strong id="exec-recommended-focus">MG Road Area (Zero Authorized Recyclers, High Gap Score)</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="table-card report-table-card">
+                        <div class="table-wrapper">
+                            <table class="glass-table report-sub-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ward</th>
+                                        <th>Weekly Collection</th>
+                                        <th>Efficiency</th>
+                                        <th>Recyclers</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="intel-weekly-table-body">
+                                    <!-- Populated dynamically by app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <!-- Script References -->
+    <script src="app.js"></script>
+</body>
+</html>
